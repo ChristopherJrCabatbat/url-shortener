@@ -44,6 +44,7 @@ export default function Home() {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Original URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Original URL
@@ -54,10 +55,11 @@ export default function Home() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
 
+          {/* Custom Slug */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Custom Slug (optional)
@@ -67,10 +69,11 @@ export default function Home() {
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               placeholder="my-short-link"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -80,10 +83,12 @@ export default function Home() {
           </button>
         </form>
 
+        {/* Error Message */}
         {error && (
           <p className="mt-4 text-red-500 text-center font-medium">{error}</p>
         )}
 
+        {/* Result */}
         {result && (
           <div className="mt-6 text-center">
             <p className="text-gray-700 font-medium mb-2">Your short link:</p>
