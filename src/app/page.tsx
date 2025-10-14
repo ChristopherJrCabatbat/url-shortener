@@ -99,6 +99,9 @@ export default function Home() {
             >
               {result}
             </a>
+            <p className="text-gray-500 text-sm mt-2">
+              Clicks will be tracked automatically.
+            </p>
           </div>
         )}
       </div>
