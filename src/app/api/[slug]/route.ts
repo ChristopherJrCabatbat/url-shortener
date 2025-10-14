@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> } // 👈 params is now a Promise
 ) {
-  const { slug } = await context.params;
+  const { slug } = await context.params; // ✅ properly await the Promise
 
   // --- Connect to Supabase ---
   const res = await fetch(
@@ -14,7 +14,7 @@ export async function GET(
         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
       },
-      cache: "no-store", // Prevent stale data
+      cache: "no-store",
     }
   );
 
