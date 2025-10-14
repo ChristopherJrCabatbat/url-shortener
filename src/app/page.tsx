@@ -9,7 +9,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setResult(null);
@@ -25,12 +25,14 @@ export default function Home() {
         }),
       });
 
-      const data = await res.json();
+      const data: { shortUrl?: string; error?: string } = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
 
-      setResult(data.shortUrl);
-    } catch (err: any) {
-      setError(err.message);
+      setResult(data.shortUrl || null);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unexpected error occurred";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -44,7 +46,6 @@ export default function Home() {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Original URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Original URL
@@ -59,7 +60,6 @@ export default function Home() {
             />
           </div>
 
-          {/* Custom Slug */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Custom Slug (optional)
@@ -73,7 +73,6 @@ export default function Home() {
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -83,12 +82,10 @@ export default function Home() {
           </button>
         </form>
 
-        {/* Error Message */}
         {error && (
           <p className="mt-4 text-red-500 text-center font-medium">{error}</p>
         )}
 
-        {/* Result */}
         {result && (
           <div className="mt-6 text-center">
             <p className="text-gray-700 font-medium mb-2">Your short link:</p>

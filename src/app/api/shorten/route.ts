@@ -3,12 +3,25 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { makeSlug } from "@/lib/slug";
 
+interface ShortUrl {
+  id: string;
+  slug: string;
+  target_url: string;
+  title?: string | null;
+  expires_at?: string | null;
+  created_at?: string;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { url: target_url, customSlug, title, expiresAt } = body;
+    const { url: target_url, customSlug, title, expiresAt } = body as {
+      url: string;
+      customSlug?: string;
+      title?: string;
+      expiresAt?: string;
+    };
 
-    // Basic validation
     if (!target_url || typeof target_url !== "string") {
       return NextResponse.json({ error: "Missing url" }, { status: 400 });
     }
@@ -19,12 +32,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // slug generation with retry for uniqueness
     let slug = customSlug?.trim() || makeSlug();
     let attempts = 0;
 
     while (attempts < 6) {
-      const insert = await supabaseAdmin
+      const { data, error } = await supabaseAdmin
         .from("short_urls")
         .insert([
           {
@@ -35,13 +47,9 @@ export async function POST(req: Request) {
           },
         ])
         .select()
-        .maybeSingle();
+        .maybeSingle<ShortUrl>();
 
-      // if no error and data returned -> success
-      // supabaseAdmin returns an object; handle errors conservatively
-      // we treat any returned value as success here
-      if ((insert as any)?.data) {
-        const data = (insert as any).data;
+      if (data && !error) {
         return NextResponse.json({
           id: data.id,
           slug,
@@ -49,7 +57,6 @@ export async function POST(req: Request) {
         });
       }
 
-      // If insert failed due to duplicate slug, generate new one
       attempts++;
       slug = makeSlug();
     }
@@ -58,11 +65,10 @@ export async function POST(req: Request) {
       { error: "Unable to generate unique slug" },
       { status: 500 }
     );
-  } catch (err: any) {
+  } catch (err) {
     console.error("/api/shorten error", err);
-    return NextResponse.json(
-      { error: err?.message || "Unknown error" },
-      { status: 500 }
-    );
+    const errorMessage =
+      err instanceof Error ? err.message : "Unknown error occurred";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
