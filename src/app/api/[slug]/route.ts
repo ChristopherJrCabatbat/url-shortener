@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ slug: string }> } // 👈 params is now a Promise
-) {
-  const { slug } = await context.params; // ✅ properly await the Promise
+// ✅ define the type Next.js 15.5 expects
+type RouteContext = {
+  params: Promise<{ slug: string }>;
+};
 
-  // --- Connect to Supabase ---
+export async function GET(request: NextRequest, context: RouteContext) {
+  const { slug } = await context.params; // ✅ await params safely
+
+  // --- Fetch the short link from Supabase ---
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/short_links?slug=eq.${slug}`,
     {
