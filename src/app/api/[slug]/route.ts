@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { slug: string } }
+  request: NextRequest,
+  context: { params: { slug: string } }
 ) {
-  const { slug } = params;
+  const { slug } = await context.params;
 
   // --- Connect to Supabase ---
   const res = await fetch(
@@ -14,6 +14,7 @@ export async function GET(
         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
       },
+      cache: "no-store", // Prevent stale data
     }
   );
 
