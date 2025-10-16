@@ -1,15 +1,16 @@
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { NextResponse } from "next/server";
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await context.params;
+
   const { error } = await supabaseAdmin.from("short_urls").delete().eq("id", id);
 
   if (error) {
-    console.error(error);
+    console.error("Error deleting link:", error);
     return NextResponse.json({ error: "Failed to delete link" }, { status: 500 });
   }
 
